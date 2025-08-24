@@ -13,6 +13,7 @@ router
   .get(tourController.aliasTopTours, tourController.getAllTours);
 
 // Main CRUD routes
+
 router
   .route('/')
   .get(tourController.getAllTours)

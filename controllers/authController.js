@@ -81,18 +81,27 @@ exports.restrictTo = (...roles) => {
 };
 
 exports.forgotPassword = catchAsync(async (req, res, next) => {
+  // 1. User ka email se find karo
   const user = await User.findOne({ email: req.body.email });
+
   if (!user) {
     return next(new AppError('There is no user with that email address.', 404));
   }
 
+  // 2. User ke liye password reset token banao
   const resetToken = user.createPasswordResetToken();
+
+  // 3. Save user WITHOUT validating other fields
   await user.save({ validateBeforeSave: false });
 
-  // Directly send resetToken in response instead of sending email
+  // 4. Email bhejne ke jagah, reset URL console ya response mein bhejo
+  const resetURL = `${req.protocol}://${req.get('host')}/api/v1/users/resetPassword/${resetToken}`;
+
+  // 5. Final response
   res.status(200).json({
     status: 'success',
-    resetToken
+    message: 'Reset link generated (email skipped)',
+    resetURL // <-- Yeh link manually use kar sakti ho
   });
 });
 
